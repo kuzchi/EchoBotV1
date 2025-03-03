@@ -1,5 +1,5 @@
 {
-    "telegram_bot_token": "ВАШ_ТОКЕН_БОТА",
+    "telegram_bot_token": ",
     "db_config": {
         "user": "postgres",
         "password": "1305",
