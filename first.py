@@ -3,19 +3,30 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
 import asyncpg
-import os
+import json
 
-API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-if not API_TOKEN or API_TOKEN == "ВАШ_ТОКЕН_БОТА":
-    raise ValueError("Переменная окружения TELEGRAM_BOT_TOKEN не установлена или содержит неверное значение!")
+
+with open("dbconfig.json", "r") as config_file:
+    config = json.load(config_file)
+    
+API_TOKEN = config.get("telegram_bot_token")
+if not API_TOKEN or API_TOKEN == "7718899847:AAFFOQYoNxuuJxO11H4FD4mGvfOHrpYIG7A":
+    raise ValueError("Неправильный токен")
+    
+DB_CONFIG = config.get("db_config")
+if not DB_CONFIG:
+    raise ValueError("Нет конфигурации")    
+    
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 async def create_db_pool():
     return await asyncpg.create_pool(**DB_CONFIG)
 db_pool = None
+
 async def start_command(message: Message):
     await message.answer("Привет! Я эхо-бот. Напишите мне что-нибудь или используйте команду /users, чтобы увидеть список пользователей в базе данных.")
 async def get_users(message: Message):
+    
     async with db_pool.acquire() as connection:
         rows = await connection.fetch("SELECT username, first_name, last_name FROM users")
         if rows:
@@ -23,12 +34,14 @@ async def get_users(message: Message):
             await message.answer(f"Список пользователей:\n{users_list}")
         else:
             await message.answer("В базе данных нет пользователей.")
+            
 async def echo_message(message: Message):
     await message.answer(message.text)
 def register_handlers(dp: Dispatcher):
     dp.message.register(start_command, Command("start"))
     dp.message.register(get_users, Command("users"))
     dp.message.register(echo_message)
+    
 async def main():
     global db_pool
     db_pool = await create_db_pool()
