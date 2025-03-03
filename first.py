@@ -8,13 +8,6 @@ import os
 API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 if not API_TOKEN or API_TOKEN == "ВАШ_ТОКЕН_БОТА":
     raise ValueError("Переменная окружения TELEGRAM_BOT_TOKEN не установлена или содержит неверное значение!")
-DB_CONFIG = {
-    'user': 'postgres',       
-    'password': '1305',           
-    'database': 'ForBot',     
-    'host': 'localhost',     
-    'port': 5432              
-}
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 async def create_db_pool():
